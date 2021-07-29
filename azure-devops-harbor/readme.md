@@ -47,12 +47,14 @@ As mentioned in the main workflow - the example workflow is designed to work wit
 3. Create a new Azure DevOps pipeline using "azure-pipelines-cd-2.yml" as your template.
 4. Use [this](https://ryanbaker.io/2021-07-26-svc-acct-kubectl/) guide to create a service account on your k8s cluster hosting TBS and save the Token, Certificate Authority Certificate, and K8S API Endpoint for the next step.
 5. Create the following variables on both pipelines and assign the values.  This will be used to populate the kubeconfig file
+
 | Variable | Secret | Value |
 | -------- | ------ | ----- |
 | api-token | Yes | A Pivnet access token to download kpack |
 | k8s-api-server | No | The https endpoint for the K8S API hosting TBS |
 | k8s-token | Yes | The token for your service account |
 | k8s-cacrt-b64 | Yes | The base64 encrypted certificate authority certificate |
+
 6.  Create an "Incoming Webhook"  Service Connection  in Azure 
 7.  Create the webhook configuration in Harbor
 
