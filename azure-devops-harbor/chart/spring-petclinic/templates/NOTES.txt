@@ -1,0 +1,3 @@
+Application has been deployed.  Get endpoint by running
+
+kubectl get services

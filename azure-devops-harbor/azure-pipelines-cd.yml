@@ -1,0 +1,62 @@
+trigger:
+- none
+
+pool:
+  vmImage: ubuntu-latest
+
+resources:
+  webhooks:
+    - webhook: newHarborImage
+      connection: newHarborImageSC
+
+stages:
+- stage: Deploy_Dev
+  variables:
+    imageSHA: ${{ parameters.newHarborImage.event_data.resources[0].digest }}
+  jobs:
+  - deployment: Deploy_Dev
+    displayName: Deploy Development
+    workspace:
+      clean: all
+    environment: stage
+    strategy:
+      runOnce: 
+        deploy:
+          steps:
+            - checkout: self
+            - task: HelmDeploy@0
+              inputs:
+                connectionType: 'Kubernetes Service Connection'
+                kubernetesServiceConnection: 'gke-dev'
+                namespace: 'spring-petclinic-dev'
+                command: 'upgrade'
+                chartType: 'FilePath'
+                chartPath: 'deployment/chart/spring-petclinic'
+                releaseName: 'spring-petclinic-prod'
+                overrideValues: image.tag=$(imageSHA)
+                arguments: '--create-namespace'
+- stage: Deploy_Production
+  variables:
+      imageSHA: ${{ parameters.newHarborImage.event_data.resources[0].digest }}
+  jobs:
+  - deployment: Deploy_Prod
+    displayName: Deploy Production
+    workspace:
+      clean: all
+    environment: production
+    strategy:
+      runOnce: 
+        deploy:
+          steps:
+            - checkout: self
+            - task: HelmDeploy@0
+              inputs:
+                connectionType: 'Kubernetes Service Connection'
+                kubernetesServiceConnection: 'gke-dev'
+                namespace: 'spring-petclinic-prod'
+                command: 'upgrade'
+                chartType: 'FilePath'
+                chartPath: 'deployment/chart/spring-petclinic'
+                releaseName: 'spring-petclinic-prod'
+                overrideValues: 'image.tag=$(imageSHA)'
+                arguments: '--create-namespace'

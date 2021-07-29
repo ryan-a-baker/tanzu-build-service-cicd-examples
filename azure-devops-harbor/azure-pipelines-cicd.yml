@@ -1,0 +1,110 @@
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+- stage: Run_CI_Tests
+  jobs:
+    - job: 
+      steps:
+        # We're just doing a build image here to 
+        # run all the tests for simplicity sake
+        - script: ./mvnw spring-boot:build-image
+          displayName: 'Build Spring Pet Clinic'
+
+- stage: Image_Build
+  jobs:
+    - job: Image_Build_Job
+      steps:
+        - script: |
+            curl -L https://github.com/pivotal-cf/pivnet-cli/releases/download/v3.0.1/pivnet-linux-amd64-3.0.1 -o pivnet
+            chmod u+x pivnet
+          displayName: 'Download Tanzu Network CLI'
+        - script: ./pivnet login --api-token $(api-token)
+          displayName: 'Log in to the Tanzu Network'
+        - script: | 
+            ./pivnet download-product-files --product-slug='build-service' --release-version='1.2.1' --product-file-id=970671
+            mv kp-linux-0.3.0 kp
+            chmod u+x kp
+          displayName: 'Download kpack cli'
+        # kpack requires kubectl to be setup, and we can't use the 
+        # service connection because the kubectl task creates and deletes
+        # the kubectl file during each task
+        - script: |
+            kubectl config set-cluster demo --server=$(k8s-server)
+            kubectl config set-credentials azure-pipelines --token=$(k8s-token)
+            kubectl config set-context demo --user=azure-pipelines --cluster=demo
+            kubectl config set-cluster demo --embed-certs --certificate-authority <(echo $(k8s-ca-crt-b64) | base64 --decode)
+            kubectl config use-context demo
+          displayName: Setup Kubectl
+        # Patch the image with the git commit sha so that TBS will build the image.
+        # Pipe the results to a file so we can capture the sha of the docker image
+        # for subsequent deployments
+
+        # For some reason with Azure DevOps passing the sha variable directly to
+        # the task.setvariable function wasn't working.  It was just passing a blank
+        # value.  Writing to output.txt then cat'ing that worked around that issue.
+        - script: | 
+            ./kp image patch --git-revision=$(Build.SourceVersion) --wait spring-petclinic | tee imagebuild.output
+            sha=$(cat imagebuild.output | grep sha | awk -F"[()]" '{print $2}')
+            echo $sha > output.txt
+            export SHA=$(cat output.txt)
+            echo "##vso[task.setvariable variable=sha;isOutput=true]$SHA"
+          name: patch_image
+        - script: |
+            echo "Key Value :"
+            echo $(patch_image.sha)
+          name: Print_Key_value
+- stage: Deploy_Dev
+  variables:
+    imageSHA: $[ stageDependencies.Image_Build.Image_Build_Job.outputs['patch_image.sha'] ]
+  jobs:
+  - deployment: Deploy_Dev
+    displayName: Deploy Development
+    workspace:
+      clean: all
+    environment: stage
+    strategy:
+      runOnce: 
+        deploy:
+          steps:
+            - checkout: self
+            - task: HelmDeploy@0
+              inputs:
+                connectionType: 'Kubernetes Service Connection'
+                kubernetesServiceConnection: 'gke-dev'
+                namespace: 'spring-petclinic-dev'
+                command: 'upgrade'
+                chartType: 'FilePath'
+                chartPath: 'deployment/chart/spring-petclinic'
+                releaseName: 'spring-petclinic-dev'
+                overrideValues: image.tag=$(imageSHA)
+                arguments: '--create-namespace'
+- stage: Deploy_Production
+  dependsOn: ["Image_Build", "Deploy_Dev"]
+  variables:
+    imageSHA: $[ stageDependencies.Image_Build.Image_Build_Job.outputs['patch_image.sha'] ]
+  jobs:
+  - deployment: Deploy_Prod
+    displayName: Deploy Production
+    workspace:
+      clean: all
+    environment: production
+    strategy:
+      runOnce: 
+        deploy:
+          steps:
+            - checkout: self
+            - task: HelmDeploy@0
+              inputs:
+                connectionType: 'Kubernetes Service Connection'
+                kubernetesServiceConnection: 'gke-dev'
+                namespace: 'spring-petclinic-prod'
+                command: 'upgrade'
+                chartType: 'FilePath'
+                chartPath: 'deployment/chart/spring-petclinic'
+                releaseName: 'spring-petclinic-prod'
+                overrideValues: 'image.tag=$(imageSHA)'
+                arguments: '--create-namespace'
