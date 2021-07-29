@@ -1,17 +1,26 @@
+# This is the second pipeline in the set of two pipelines.
+
+# It will be triggered by the registry webhook when a new image is pushed
+# and deploy to a dev environment, then promote to a production environment.
+
 trigger:
 - none
 
 pool:
   vmImage: ubuntu-latest
 
+# Define the name of the webhook
 resources:
   webhooks:
     - webhook: newHarborImage
       connection: newHarborImageSC
 
 stages:
+# Deploy the Dev Environment
 - stage: Deploy_Dev
   variables:
+    # Grab the digest sha of the image from the Webook payload.
+    # We'll updated the deployment with this digest sha.
     imageSHA: ${{ parameters.newHarborImage.event_data.resources[0].digest }}
   jobs:
   - deployment: Deploy_Dev

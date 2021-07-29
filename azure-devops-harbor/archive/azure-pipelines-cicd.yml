@@ -1,3 +1,9 @@
+# This pipeline is an example of how you can do CI and CD as part of 
+# single pipeline.  This is just an example and shouldn't be used in
+# used in production without some reworking.  This specific pipeline
+# will not handle TBS stack updates.  It was more of POC to illustrate
+# passing the image digest from TBS to the deployment.
+
 trigger:
 - main
 

@@ -1,3 +1,8 @@
+# This is the first pipeline in the set of two pipelines.
+
+# It is responsible for trigging a TBS build when code is commited
+# to the main branch.
+
 trigger:
 - main
 
@@ -31,7 +36,8 @@ stages:
           displayName: 'Download kpack cli'
         # kpack requires kubectl to be setup, and we can't use the 
         # service connection because the kubectl task creates and deletes
-        # the kubectl file during each task
+        # the kubectl file during each task so we must manually create 
+        # a kubectl config file
         - script: |
             kubectl config set-cluster demo --server=$(k8s-server)
             kubectl config set-credentials azure-pipelines --token=$(k8s-token)
