@@ -54,6 +54,7 @@ As mentioned in the main workflow - the example workflow is designed to work wit
 | k8s-cacrt-b64 | Yes | The base64 encrypted certificate authority certificate |
 6. Create a new Azure DevOps pipeline using "azure-pipelines-cd-2.yml" as your template.
 7.  Create a new ["Incoming Webhook"  Service Connection](https://docs.microsoft.com/en-us/azure/devops/release-notes/2020/pipelines/sprint-172-update#generic-webhook-based-triggers-for-yaml-pipelines) in your Azure DevOps project
+
 ![New Webhook Configuration](images/createServiceConnection.png)
 
 8.  Create the webhook configuration in Harbor
