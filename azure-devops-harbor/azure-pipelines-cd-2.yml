@@ -3,13 +3,16 @@
 # It will be triggered by the registry webhook when a new image is pushed
 # and deploy to a dev environment, then promote to a production environment.
 
+# Since we're only letting the webhook to trigger, ignore any other triggers
 trigger:
 - none
 
 pool:
   vmImage: ubuntu-latest
 
-# Define the name of the webhook
+# Define the name of the webhook.  
+# https://docs.microsoft.com/en-us/azure/devops/release-notes/2020/pipelines/sprint-172-update?WT.mc_id=DOP-MVP-21138#generic-webhook-based-triggers-for-yaml-pipelines
+# It's important to know that Azure Devops only will listen to webhook calls on the default branch of a repo.  
 resources:
   webhooks:
     - webhook: newHarborImage
@@ -23,6 +26,7 @@ stages:
     # We'll updated the deployment with this digest sha.
     imageSHA: ${{ parameters.newHarborImage.event_data.resources[0].digest }}
   jobs:
+  # First deploy the development environment
   - deployment: Deploy_Dev
     displayName: Deploy Development
     workspace:
@@ -33,6 +37,9 @@ stages:
         deploy:
           steps:
             - checkout: self
+            # Deploy the Helm Chart for Spring Pet Clinic, which will update the digest of the image
+            # and deploy the image that was just pushed to harbor.  This uses the k8s service
+            # connection in Azure Devops to authenticate to K8S
             - task: HelmDeploy@0
               inputs:
                 connectionType: 'Kubernetes Service Connection'
@@ -44,6 +51,7 @@ stages:
                 releaseName: 'spring-petclinic-prod'
                 overrideValues: image.tag=$(imageSHA)
                 arguments: '--create-namespace'
+# Repeat the deploy to for the production environment
 - stage: Deploy_Production
   variables:
       imageSHA: ${{ parameters.newHarborImage.event_data.resources[0].digest }}
