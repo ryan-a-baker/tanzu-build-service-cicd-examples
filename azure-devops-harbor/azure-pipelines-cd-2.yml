@@ -51,7 +51,7 @@ stages:
                 releaseName: 'spring-petclinic-prod'
                 overrideValues: image.tag=$(imageSHA)
                 arguments: '--create-namespace'
-# Repeat the deploy to for the production environment
+# Repeat the deploy for the production environment
 - stage: Deploy_Production
   variables:
       imageSHA: ${{ parameters.newHarborImage.event_data.resources[0].digest }}

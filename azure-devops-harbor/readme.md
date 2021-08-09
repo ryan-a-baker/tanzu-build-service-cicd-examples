@@ -41,28 +41,18 @@ The workflow for this pipeline is as follows:
 
 As mentioned in the main workflow - the example workflow is designed to work with the common [Spring Pet Clinic](https://github.com/spring-projects/spring-petclinic) code sample.  Here are the rough steps to setup these pipelines if you wish to create a working example yourself.
 
-1. Fork the Spring Pet Clinic application
+1. Fork the [Spring Pet Clinic application](https://github.com/spring-projects/spring-petclinic)
 2. Copy the "azure-pipelines-cd-1.yml" and "azure-pipelines-cd-2.yml" in to the fork
-3. Create a new Azure DevOps pipeline using "azure-pipelines-cd-1.yml" as your template.
-3. Create a new Azure DevOps pipeline using "azure-pipelines-cd-2.yml" as your template.
-4. Use [this](https://ryanbaker.io/2021-07-26-svc-acct-kubectl/) guide to create a service account on your k8s cluster hosting TBS and save the Token, Certificate Authority Certificate, and K8S API Endpoint for the next step.
-5. Create the following variables on both pipelines and assign the values.  This will be used to populate the kubeconfig file
-
+3. Use [this](https://ryanbaker.io/2021-07-26-svc-acct-kubectl/) guide to create a service account on your k8s cluster hosting TBS and save the Token, Certificate Authority Certificate, and K8S API Endpoint for the next step.
+4. Create a new Azure DevOps pipeline using "azure-pipelines-cd-1.yml" as your template.
+5. Create the following [variables](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch#secret-variables) on azure pipelines and assign the values.  This will be used to download kppack and provide a kubeconfig file for it
 | Variable | Secret | Value |
 | -------- | ------ | ----- |
 | api-token | Yes | A Pivnet access token to download kpack |
 | k8s-api-server | No | The https endpoint for the K8S API hosting TBS |
 | k8s-token | Yes | The token for your service account |
 | k8s-cacrt-b64 | Yes | The base64 encrypted certificate authority certificate |
-
-6.  Create an "Incoming Webhook"  Service Connection  in Azure 
-7.  Create the webhook configuration in Harbor
-
-
-
-
-
-
-
-
-
+6. Create a new Azure DevOps pipeline using "azure-pipelines-cd-2.yml" as your template.
+7.  Create a new ["Incoming Webhook"  Service Connection](https://docs.microsoft.com/en-us/azure/devops/release-notes/2020/pipelines/sprint-172-update#generic-webhook-based-triggers-for-yaml-pipelines) in your Azure DevOps project
+![New Webhook Configuration](images/createServiceConnection.png)
+8.  Create the webhook configuration in Harbor
