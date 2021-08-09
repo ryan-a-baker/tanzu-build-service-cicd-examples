@@ -60,3 +60,5 @@ As mentioned in the main workflow - the example workflow is designed to work wit
 ![New Webhook Configuration](images/createServiceConnection.png)
 
 8.  Create the webhook configuration in Harbor
+
+![New Webhook Configuration](images/harborWebhook.png)
