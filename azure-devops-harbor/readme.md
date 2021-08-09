@@ -59,6 +59,6 @@ As mentioned in the main workflow - the example workflow is designed to work wit
 
 ![New Webhook Configuration](images/createServiceConnection.png)
 
-8.  Create the webhook configuration in Harbor
+8.  Create the webhook configuration in Harbor.  Note that the URL will be https://dev.azure.com/<azure-project>/_apis/public/distributedtask/webhooks/newHarborImage?api-version=6.0-preview and this is applied at the repository level for your container.  If you have multiple images in the repository, you could filter by image name on the trigger on the Azure DevOps side.
 
 ![New Webhook Configuration](images/harborWebhook.png)
