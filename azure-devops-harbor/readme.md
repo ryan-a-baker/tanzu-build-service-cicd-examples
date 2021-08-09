@@ -45,7 +45,7 @@ As mentioned in the main workflow - the example workflow is designed to work wit
 2. Copy the "azure-pipelines-cd-1.yml" and "azure-pipelines-cd-2.yml" in to the fork
 3. Use [this](https://ryanbaker.io/2021-07-26-svc-acct-kubectl/) guide to create a service account on your k8s cluster hosting TBS and save the Token, Certificate Authority Certificate, and K8S API Endpoint for the next step.
 4. Create a new Azure DevOps pipeline using "azure-pipelines-cd-1.yml" as your template.
-5. Create the following [variables](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch#secret-variables) on azure pipelines and assign the values.  This will be used to download kpack and provide a kubeconfig file for it.
+5. Create the following [variables](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch#secret-variables) on the pipeline and assign the values.  This will be used to download kpack and provide a kubeconfig file for it.
 
 | Variable | Secret | Value |
 | -------- | ------ | ----- |
