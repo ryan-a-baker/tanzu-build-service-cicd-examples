@@ -19,7 +19,10 @@ stages:
         # but this is where you could insert any test 
         # steps you wanted to run before TBS is triggered to 
         # build the image
-        - script: ./mvnw spring-boot:build-image
+        #- script: ./mvnw spring-boot:build-image
+        - script: echo "Run CI Tests"
+          displayName: Build Test Image
+  displayName: Run CI Steps
 
 - stage: Image_Build
   jobs:
