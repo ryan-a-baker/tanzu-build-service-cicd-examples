@@ -48,7 +48,7 @@ In order to do this, the registry that we use must support initiating a webhook 
 
 # Prep work
 
-In order for the deployment to work - you'll need to create the image on Tanzu build service and point it to a previous commit sha:
+All pipelines assume that the image has already been created in Tanzu Build Service with a commit SHA specified.  The pipeline will simply update the SHA when necesarry.
 
 ```
 kp image create spring-petclinic --tag harbor-demo.ryanbaker.io/demo-tbs/spring-petclinic --git https://github.com/ryan-a-baker/spring-petclinic.git --git-revision a7e9488646cda0ae823be0a080743bef02c5f6e1
