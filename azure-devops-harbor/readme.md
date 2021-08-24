@@ -2,6 +2,10 @@
 
 This example will outline how to integrate the Tanzu Build Service in to a CICD pipeline using Azure DevOps as the pipeline solution and Harbor as the container registry.
 
+A video walkthrough of the demo can be watched on YouTube:
+
+https://youtu.be/PzL5tNJikV8
+
 For a high level overview of how the Tanzu Build Service (TBS) in a CICD pipeline works, please review the [main readme](https://github.com/ryan-a-baker/tanzu-build-service-cicd-examples/blob/master/readme.md)
 
 # Overview
